@@ -1,6 +1,6 @@
 from collections import deque
 import heapq
-
+ 
 class Node:
     def __init__(self, data):
         self.data = data
