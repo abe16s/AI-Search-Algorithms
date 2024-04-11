@@ -1,123 +1,94 @@
-from collections import deque
+from collections import deque, defaultdict
 import heapq
+import random
+import math
  
 class Node:
-    def __init__(self, data):
+    def __init__(self, data, location):
         self.data = data
+        self.location = location
 
-    # def __str__(self):
-    #     return self.data
-
-n1 = Node("Betsegaw")
-print(n1)
-
-num = '45'
-print(int(num))
-    
-
-
-# class Edge:
-#     def __init__(self, start: Node, end: Node, weight: int = 1):
-#         self.start = start
-#         self.end = end
-#         self.weight = weight
-
-#     def __str__(self) -> str:
-#         return f'Edge from {self.start.data} to {self.end.data}'
-    
-
+    def __str__(self):
+        return self.data
 
 class Graph:
     def __init__(self):
         self.adjacencyDic = {}
-
-    def possiblePaths(self, start, end, path=[]):
-        path = path + [start]
-
-        if start == end:
-            return [path]
-        
-        if start not in self.adjacencyDic:
-            return [] 
-        
-        paths = []
-
-        for node in self.adjacencyDic[start]:
-            if node not in path:
-                new_paths = self.possiblePaths(node, end, path)
-                for pth in new_paths:
-                    paths.append(pth)
-        return paths
     
-    def createNode(self, data):
-        newNode = Node(data)
-        self.adjacencyDic[newNode] = []
+    def createNode(self, data, location):
+        newNode = Node(data, location)
+        self.adjacencyDic[data] = [newNode, []]
 
     def insertEdge(self, start, end, weight):
         if start not in self.adjacencyDic:
-            self.adjacencyDic[start] = []
+            self.createNode(start, (random.uniform(1.0, 50) , random.uniform(1.0, 50)))
         
         if end not in self.adjacencyDic:
-            self.adjacencyDic[end] = []
+            self.createNode(end, (random.uniform(1.0, 50) , random.uniform(1.0, 50)))
 
-        self.adjacencyDic[start].append((end, weight))
-        self.adjacencyDic[end].append((start, weight))
+        self.adjacencyDic[start][1].append((end, weight))
+        self.adjacencyDic[end][1].append((start, weight))
 
     
     def deleteEdge(self, start, end, weight):
-        self.adjacencyDic[start].remove((end, weight))
-        self.adjacencyDic[end].remove((start, weight))
+        self.adjacencyDic[start][1].remove((end, weight))
+        self.adjacencyDic[end][1].remove((start, weight))
 
     def deleteNode(self, node_del):
-        for neighbour in self.adjacencyDic[node_del]:
-            nbr, cost = neighbour
+        for neighbor in self.adjacencyDic[node_del]:
+            nbr, cost = neighbor
             self.adjacencyDic[nbr].remove(node_del, cost)
         self.adjacencyDic.pop(node_del)
     
-    def shortestPath(self, start, end):
-        paths = self.possiblePaths(start, end)
-        small = [paths[0]]
-        for i in paths:
-            if len(small[0]) > len(i):
-                small = [i]
-            elif len(small[0]) == len(i):
-                small.append(i)
-        return small
-    
+    # Searches 
 
     def BFS(self, start, target):
-        visited = set()
         queue = deque([start])
-        visited.add(start)
+        # visited.add(start)
+        parent = {start: start}
 
         while queue:
             current_node = queue.popleft()
-            print(current_node, end=' ')
-
-            for neighbor in self.adjacencyDic.get(current_node, []):
-                if neighbor not in visited:
-                    if neighbor == target:
-                        visited.add(target)
-                        return visited
+            if current_node == target:
+                path = []
+                while current_node != start:
+                    path.append(current_node)
+                    current_node = parent[current_node]
+                
+                path.append(start)
+                return path[::-1]
+            
+            for neighbor, cost in self.adjacencyDic[current_node][1]:
+                if neighbor not in parent:
                     queue.append(neighbor)
-                    visited.add(neighbor)
+                    parent[neighbor] = current_node
+
+        return None
+
 
     def DFS(self, start, target):
-        visited = set()
+        stack = [start]
+        parent = {start: start}
 
-        def dfs_recursive(node):
-            print(node, end=' ')
-            visited.add(node)
-            for neighbor in self.adjacencyDic.get(node, []):
-                if neighbor not in visited:
-                    if neighbor == target:
-                        visited.add(target)
-                        return visited
-                    dfs_recursive(neighbor)
+        while stack:
+            current_node = stack.pop()
+            if current_node == target:
+                path = []
+                while current_node != start:
+                    path.append(current_node)
+                    current_node = parent[current_node]
+                
+                path.append(start)
+                return path[::-1]
 
-        dfs_recursive(start)
+            for neighbor, cost in self.adjacencyDic[current_node][1]:
+                if neighbor not in parent:
+                    stack.append(neighbor)
+                    parent[neighbor] = current_node
 
-    def uniform_cost_search(self, start, end):
+        return None
+
+    def UCS(self, start, end):
         visited = set()
         heap = [(0, start, [])]  # Priority queue: (cost, node, path)
 
@@ -127,13 +98,11 @@ class Graph:
             if current_node == end:
                 return path + [current_node]
 
-            if current_node not in visited:
-                visited.add(current_node)
+            visited.add(current_node)
 
-                for edge in self.adjacencyDic.get(current_node.data, []):
-                    next_node = edge.end
-                    if next_node not in visited:
-                        heapq.heappush(heap, (cost + edge.weight, next_node, path + [current_node]))
+            for neighbor, cur_cost in self.adjacencyDic[current_node][1]:
+                if neighbor not in visited:
+                    heapq.heappush(heap, (cost + cur_cost, neighbor, path + [current_node]))
 
     def iterative_deepening_search(self, start, end, max_depth=10):
         for depth in range(1, max_depth + 1):
@@ -151,10 +120,9 @@ class Graph:
                 return None
 
             visited.add(node)
-            for edge in self.adjacencyDic.get(node.data, []):
-                next_node = edge.end
-                if next_node not in visited:
-                    new_path = dfs(next_node, path + [node], current_depth - 1)
+            for neighbor, cost in self.adjacencyDic[node][1]:
+                if neighbor not in visited:
+                    new_path = dfs(neighbor, path + [node], current_depth - 1)
                     if new_path:
                         return new_path
             return None
@@ -162,53 +130,95 @@ class Graph:
         return dfs(start, [], depth)
 
     def bidirectional_search(self, start, end):
-        forward_visited = set()
-        backward_visited = set()
-        forward_queue = deque([(start, [])])
-        backward_queue = deque([(end, [])])
+        forward_parent = {start: None}
+        backward_parent = {end: None}
+        forward_queue = deque([start])
+        backward_queue = deque([end])
 
         while forward_queue and backward_queue:
-            forward_node, forward_path = forward_queue.popleft()
-            backward_node, backward_path = backward_queue.popleft()
+            forward_node = forward_queue.popleft()
+            backward_node = backward_queue.popleft()
 
-            if forward_node in backward_visited:
-                return forward_path + [forward_node] + backward_path[::-1]
+            if forward_node in backward_parent or backward_node in forward_parent:
+                cur = forward_node if forward_node in backward_parent else backward_node
+                path = []
+                forw = cur
+                while forw != start:
+                    path.append(forw)
+                    forw = forward_parent[forw]
+                path.append(start)
+                path.reverse()
 
-            if backward_node in forward_visited:
-                return forward_path[::-1] + [backward_node] + backward_path
+                while cur != end:
+                    cur = backward_parent[cur]
+                    path.append(cur)
+                return path
 
-            forward_visited.add(forward_node)
-            backward_visited.add(backward_node)
+            for neighbor, cost in self.adjacencyDic[forward_node][1]:
+                if neighbor not in forward_parent:
+                    forward_queue.append(neighbor)
+                    forward_parent[neighbor] = forward_node
 
-            for edge in self.adjacencyDic.get(forward_node.data, []):
-                next_node = edge.end
-                if next_node not in forward_visited:
-                    forward_queue.append((next_node, forward_path + [forward_node]))
-
-            for edge in self.adjacencyDic.get(backward_node.data, []):
-                next_node = edge.end
-                if next_node not in backward_visited:
-                    backward_queue.append((next_node, backward_path + [backward_node]))
-
+            for neighbor, cost in self.adjacencyDic[backward_node][1]:
+                if neighbor not in backward_parent:
+                    backward_queue.append(neighbor)
+                    backward_parent[neighbor] = backward_node
+    
+    
     def astar_search(self, start, end, heuristic):
         open_set = [(0 + heuristic(start, end), 0, start, [])]  # (f-cost, g-cost, node, path)
-
+        visited = set()
         while open_set:
             _, cost, current_node, path = heapq.heappop(open_set)
+            if current_node == end:
+                return path + [current_node]
+            
+            visited.add(current_node)
 
+            for neighbor, cur_cost in self.adjacencyDic[current_node][1]:
+                if neighbor not in visited:
+                    new_cost = cost + cur_cost
+                    new_path = path + [current_node]
+                    f_cost = new_cost + heuristic(neighbor, end)
+                    heapq.heappush(open_set, (f_cost, new_cost, neighbor, new_path))
+
+    def greedy(self, start, end, heuristic):
+        current = (heuristic(start, end), start, [])  # (heuristic, node, path)
+        visited = set()
+        while current:
+            heu_cost, current_node, path = current
+            visited.add(current_node)
+            current = None
+            mini = float("inf")
             if current_node == end:
                 return path + [current_node]
 
-            for edge in self.adjacencyDic.get(current_node.data, []):
-                next_node = edge.end
-                new_cost = cost + edge.weight
-                new_path = path + [current_node]
-                f_cost = new_cost + heuristic(next_node, end)
-                heapq.heappush(open_set, (f_cost, new_cost, next_node, new_path))
+            for neighbor, cur_cost in self.adjacencyDic[current_node][1]:
+                if neighbor not in visited:
+                    new_path = path + [current_node]
+                    cur = heuristic(neighbor, end)
+                    if cur < mini:
+                        current = (cur, neighbor, new_path)
+                        mini = cur
 
-    def shortest_path(self, start, end):
-        return self.uniform_cost_search(start, end)
+    def haversine_distance(self, node_a, node_b):
 
+        lat1, lon1 = self.adjacencyDic[node_a][0].location
+        lat2, lon2 = self.adjacencyDic[node_b][0].location
 
-        
+        lat1 = math.radians(lat1)
+        lon1 = math.radians(lon1)
+        lat2 = math.radians(lat2)
+        lon2 = math.radians(lon2)
+
+        dlon = lon2 - lon1
+        dlat = lat2 - lat1
+        a = math.sin(dlat / 2)**2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlon / 2)**2
+        c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+        radius_earth = 6371  
+        distance = radius_earth * c
+
+        return distance
+
+            
 
