@@ -1,4 +1,4 @@
-from collections import deque
+from collections import deque, defaultdict
 import heapq
  
 class Node:
@@ -24,14 +24,11 @@ class Edge:
 class Graph:
     def __init__(self, edges: list[Edge]):
         self.edges = edges
-        self.adjacencyDic = {}
+        self.adjacencyDic = defaultdict(list)
 
         for edge in self.edges:
-            if edge.start.data in self.adjacencyDic:
-                temp = self.adjacencyDic[edge.start.data]
-                temp.append(edge.end.data)
-            else:
-                self.adjacencyDic[edge.start.data] = [edge.end.data]
+            self.adjacencyDic[edge.start.data].append(edge.end.data)
+
     def possiblePaths(self, start, end, path=[]):
         path = path + [start]
 
