@@ -98,12 +98,11 @@ class Graph:
             if current_node == end:
                 return path + [current_node]
 
-            if current_node not in visited:
-                visited.add(current_node)
+            visited.add(current_node)
 
-                for neighbor, cur_cost in self.adjacencyDic[current_node][1]:
-                    if neighbor not in visited:
-                        heapq.heappush(heap, (cost + cur_cost, neighbor, path + [current_node]))
+            for neighbor, cur_cost in self.adjacencyDic[current_node][1]:
+                if neighbor not in visited:
+                    heapq.heappush(heap, (cost + cur_cost, neighbor, path + [current_node]))
 
     def iterative_deepening_search(self, start, end, max_depth=10):
         for depth in range(1, max_depth + 1):
@@ -130,67 +129,77 @@ class Graph:
 
         return dfs(start, [], depth)
 
-
-    # yazkush ##########
     def bidirectional_search(self, start, end):
-        forward_visited = set()
-        backward_visited = set()
-        forward_queue = deque([(start, [])])
-        backward_queue = deque([(end, [])])
+        forward_parent = {start: None}
+        backward_parent = {end: None}
+        forward_queue = deque([start])
+        backward_queue = deque([end])
 
         while forward_queue and backward_queue:
-            forward_node, forward_path = forward_queue.popleft()
-            backward_node, backward_path = backward_queue.popleft()
+            forward_node = forward_queue.popleft()
+            backward_node = backward_queue.popleft()
 
-            if forward_node in backward_visited:
-                return forward_path + [forward_node] + backward_path[::-1]
+            if forward_node in backward_parent or backward_node in forward_parent:
+                cur = forward_node if forward_node in backward_parent else backward_node
+                path = []
+                forw = cur
+                while forw != start:
+                    path.append(forw)
+                    forw = forward_parent[forw]
+                path.append(start)
+                path.reverse()
 
-            if backward_node in forward_visited:
-                return forward_path + [backward_node] + backward_path[::-1]
-
-            forward_visited.add(forward_node)
-            backward_visited.add(backward_node)
+                while cur != end:
+                    cur = backward_parent[cur]
+                    path.append(cur)
+                return path
 
             for neighbor, cost in self.adjacencyDic[forward_node][1]:
-                if neighbor not in forward_visited:
-                    forward_queue.append((neighbor, forward_path + [forward_node]))
+                if neighbor not in forward_parent:
+                    forward_queue.append(neighbor)
+                    forward_parent[neighbor] = forward_node
 
             for neighbor, cost in self.adjacencyDic[backward_node][1]:
-                if neighbor not in backward_visited:
-                    backward_queue.append((neighbor, backward_path + [backward_node]))
-
+                if neighbor not in backward_parent:
+                    backward_queue.append(neighbor)
+                    backward_parent[neighbor] = backward_node
     
     
     def astar_search(self, start, end, heuristic):
         open_set = [(0 + heuristic(start, end), 0, start, [])]  # (f-cost, g-cost, node, path)
-
-        while open_set:
-            _, cost, current_node, path = heapq.heappop(open_set)
-
-            if current_node == end:
-                return path + [current_node]
-
-            for neighbor, cur_cost in self.adjacencyDic[current_node][1]:
-                new_cost = cost + cur_cost
-                new_path = path + [current_node]
-                f_cost = new_cost + heuristic(neighbor, end)
-                heapq.heappush(open_set, (f_cost, new_cost, neighbor, new_path))
-
-    def greedy(self, start, end, heuristic):
-        open_set = [(heuristic(start, end), start, [])]  # (heuristic, node, path)
         visited = set()
         while open_set:
-            heu_cost, current_node, path = heapq.heappop(open_set)
-            open_set = []
+            _, cost, current_node, path = heapq.heappop(open_set)
+            if current_node == end:
+                return path + [current_node]
+            
             visited.add(current_node)
+
+            for neighbor, cur_cost in self.adjacencyDic[current_node][1]:
+                if neighbor not in visited:
+                    new_cost = cost + cur_cost
+                    new_path = path + [current_node]
+                    f_cost = new_cost + heuristic(neighbor, end)
+                    heapq.heappush(open_set, (f_cost, new_cost, neighbor, new_path))
+
+    def greedy(self, start, end, heuristic):
+        current = (heuristic(start, end), start, [])  # (heuristic, node, path)
+        visited = set()
+        while current:
+            heu_cost, current_node, path = current
+            visited.add(current_node)
+            current = None
+            mini = float("inf")
             if current_node == end:
                 return path + [current_node]
 
             for neighbor, cur_cost in self.adjacencyDic[current_node][1]:
                 if neighbor not in visited:
                     new_path = path + [current_node]
-                    heapq.heappush(open_set, (heuristic(neighbor, end), neighbor, new_path))
-
+                    cur = heuristic(neighbor, end)
+                    if cur < mini:
+                        current = (cur, neighbor, new_path)
+                        mini = cur
 
     def haversine_distance(self, node_a, node_b):
 
