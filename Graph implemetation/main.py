@@ -3,16 +3,15 @@ import random
 import timeit
 from collections import defaultdict
 
-
-
 def generate_random_graph(n, p):
-    # graph = Graph()
+    random_graph = Graph()
     for i in range(1, n + 1):
-        for j in range(1, n + 1):
-            if i != j and random.random() < p:
-                # graph.insertEdge(i, j, 1)
-                pass
-    # return graph
+        if i not in random_graph.adjacencyDic:
+            random_graph.createNode(i, (random.uniform(1.0, 50) , random.uniform(1.0, 50)))
+        for j in range(i+1, n + 1):
+            if random.random() < p:
+                random_graph.insertEdge(i, j, random.randint(1,100))
+    return random_graph
 
 
 graph1 = generate_random_graph(10, 0.2)
@@ -37,9 +36,11 @@ graph16 = generate_random_graph(40, 0.8)
 
 
 Graphs = [graph1, graph2, graph3, graph4, graph5, graph6, graph7, graph8, graph9, graph10, graph11, graph12, graph13, graph14, graph15, graph16]
-# graph_paths = []
-# graph_times = []
+
+graph_paths = []
+graph_times = defaultdict(list)
 for g in range(len(Graphs)):
+    # print(g)
     graph = Graphs[g]
     random_nodes = []
     while len(random_nodes) < 10:
@@ -48,48 +49,78 @@ for g in range(len(Graphs)):
             random_nodes.append(x)
 
     # print(random_nodes)
-    algos = ["dfs", "bfs", "ucs", "bidirectional", "greedy", "astar", "iterative_deepening_search"]
+    algos = ["dfs"]#, "ucs", "bidirectional", "greedy", "astar", "iterative_deepening_search"]
     algo_path_length = defaultdict(list)
-    algo_time_taken = defaultdict(int)
+    algo_time_taken = defaultdict(list)
     
-    # for i in range(len(random_nodes)):
-    #     for j in range(i, len(random_nodes)):
-    #         for algo in algos:
-    #             algo_path = 0
-    #             algo_time = 0    
-    #             for _ in range(5):
-    #                 start_time = timeit.default_timer()
-    #                 if algo == "dfs":
-    #                     path = dfs(random_nodes[i], random_nodes[j], graph.graph)
-    #                 elif algo == "bfs":
-    #                     path = bfs(random_nodes[i], random_nodes[j], graph.graph)
-    #                 elif algo == "greedy":
-    #                     path = greedy(graph.graph, random_nodes[i], random_nodes[j], graph.locations)
-    #                 elif algo == "iterative_deepening_search":
-    #                     path = iterative_deepening_search(graph.graph, random_nodes[i], random_nodes[j], 4)
-    #                 elif algo == "astar":
-    #                     path = astar(graph.graph, random_nodes[i], random_nodes[j], graph.locations)
-    #                 elif algo == "ucs":
-    #                     path = ucs(graph, random_nodes[i], random_nodes[j])
-    #                 elif algo == "bidirectional":
-    #                     path = bidirectional(graph, random_nodes[i], random_nodes[j])
+    for i in range(len(random_nodes)):
+        for j in range(i, len(random_nodes)):
+            for algo in algos:
+                # algo_path = 0
+                algo_time = 0    
+                for _ in range(5):
+                    # print(_)
+                    start_time = timeit.default_timer()
+                    if algo == "dfs":
+                        path = graph.DFS(random_nodes[i], random_nodes[j])
+                    elif algo == "bfs":
+                        path = graph.BFS(random_nodes[i], random_nodes[j])
+                    elif algo == "greedy":
+                        path = graph.greedy(random_nodes[i], random_nodes[j], graph.haversine_distance)
+                    # elif algo == "iterative_deepening_search":
+                    #     path = iterative_deepening_search(graph.graph, random_nodes[i], random_nodes[j], 4)
+                    # elif algo == "astar":
+                        # path = graph.astar_search(random_nodes[i], random_nodes[j], graph.haversine_distance)
+                    # elif algo == "ucs":
+                    #     path = ucs(graph, random_nodes[i], random_nodes[j])
+                    # elif algo == "bidirectional":
+                    #     path = bidirectional(graph, random_nodes[i], random_nodes[j])
 
-    #                 end_time = timeit.default_timer()
+                    end_time = timeit.default_timer()
                 
-    #             if path:
-    #                 algo_path += find_taken_distance(path, graph.graph)
-    #             algo_time += end_time - start_time
+                    # if path:
+                    #     algo_path += find_taken_distance(path, graph.graph)
+                    algo_time += end_time - start_time
 
-    #         algo_path_length[algo].append(algo_path/5)
-    #         algo_time_taken[algo].append(algo_time/5)
+                # algo_path_length[algo].append(algo_path/5)
+                # algo_time_taken[algo] += (algo_time)
 
     # graph_paths.append(algo_path_length)
-    # graph_times.append(algo_time_taken)
+            graph_times[algo].append(algo_time)# (algo_time_taken)
 
-cities = {}
-with open('Graph implemetation\cities.txt', 'r') as file:
-    for line in file:
-        c = line.strip().split()
-        if c[0] == "City":
-            continue
-        cities[c[0]] = (c[1], c[2])
+print(graph_times)
+# romania = Graph()
+# with open('Graph implemetation\cities.txt', 'r') as file:
+#     for line in file:
+#         c = line.strip().split()
+#         if c[0] == "City":
+#             continue
+#         romania.createNode(c[0], (float(c[1]), float(c[2])))
+
+# romania.insertEdge('Oradea','Sibiu', 151 )
+# romania.insertEdge('Oradea','Zerind', 71)
+# romania.insertEdge('Zerind','Arad', 75)
+# romania.insertEdge('Arad','Sibiu', 140)
+# romania.insertEdge('Arad','Timisoara', 118)
+# romania.insertEdge('Sibiu','Fagaras', 99)
+# romania.insertEdge('Sibiu','Rimnicu_Vilcea', 80)
+# romania.insertEdge('Timisoara','Lugoj', 111)
+# romania.insertEdge('Lugoj','Mehadia', 70)
+# romania.insertEdge('Mehadia','Drobeta', 75)
+# romania.insertEdge('Drobeta','Craiova', 120)
+# romania.insertEdge('Craiova','Pitesti', 138)
+# romania.insertEdge('Rimnicu_Vilcea','Pitesti', 97)
+# romania.insertEdge('Rimnicu_Vilcea', 'Craiova', 146)
+# romania.insertEdge('Fagaras', 'Bucharest', 211)
+# romania.insertEdge('Pitesti', 'Bucharest', 101)
+# romania.insertEdge('Bucharest', 'Urziceni', 85)
+# romania.insertEdge('Bucharest', 'Giurgiu', 90)
+# romania.insertEdge('Urziceni', 'Hirsova', 98)
+# romania.insertEdge('Urziceni', 'Vaslui', 142)
+# romania.insertEdge('Hirsova', 'Eforie', 86)
+# romania.insertEdge('Vaslui', 'Iasi', 92)
+# romania.insertEdge('Iasi', 'Neamt', 87)
+
+# # print(romania.astar_search("Oradea", "Neamt", romania.haversine_distance))
+# # print(romania.UCS("Oradea", "Neamt"))
+# print(romania.greedy("Fagaras", "Neamt", romania.haversine_distance))
