@@ -10,28 +10,21 @@ class Node:
     
 
 
-class Edge:
-    def __init__(self, start: Node, end: Node, weight: int = 1):
-        self.start = start
-        self.end = end
-        self.weight = weight
+# class Edge:
+#     def __init__(self, start: Node, end: Node, weight: int = 1):
+#         self.start = start
+#         self.end = end
+#         self.weight = weight
 
-    def __str__(self) -> str:
-        return f'Edge from {self.start.data} to {self.end.data}'
+#     def __str__(self) -> str:
+#         return f'Edge from {self.start.data} to {self.end.data}'
     
 
 
 class Graph:
-    def __init__(self, edges: list[Edge]):
-        self.edges = edges
+    def __init__(self):
         self.adjacencyDic = {}
 
-        for edge in self.edges:
-            if edge.start.data in self.adjacencyDic:
-                temp = self.adjacencyDic[edge.start.data]
-                temp.append(edge.end.data)
-            else:
-                self.adjacencyDic[edge.start.data] = [edge.end.data]
     def possiblePaths(self, start, end, path=[]):
         path = path + [start]
 
@@ -49,6 +42,31 @@ class Graph:
                 for pth in new_paths:
                     paths.append(pth)
         return paths
+    
+    def createNode(self, data):
+        newNode = Node(data)
+        self.adjacencyDic[newNode] = []
+
+    def insertEdge(self, start, end, weight):
+        if start not in self.adjacencyDic:
+            self.adjacencyDic[start] = []
+        
+        if end not in self.adjacencyDic:
+            self.adjacencyDic[end] = []
+
+        self.adjacencyDic[start].append((end, weight))
+        self.adjacencyDic[end].append((start, weight))
+
+    
+    def deleteEdge(self, start, end, weight):
+        self.adjacencyDic[start].remove((end, weight))
+        self.adjacencyDic[end].remove((start, weight))
+
+    def deleteNode(self, node_del):
+        for neighbour in self.adjacencyDic[node_del]:
+            nbr, cost = neighbour
+            self.adjacencyDic[nbr].remove(node_del, cost)
+        self.adjacencyDic.pop(node_del)
     
     def shortestPath(self, start, end):
         paths = self.possiblePaths(start, end)
