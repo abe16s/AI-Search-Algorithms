@@ -5,8 +5,14 @@ class Node:
     def __init__(self, data):
         self.data = data
 
-    def __str__(self):
-        return self.data
+    # def __str__(self):
+    #     return self.data
+
+n1 = Node("Betsegaw")
+print(n1)
+
+num = '45'
+print(int(num))
     
 
 
