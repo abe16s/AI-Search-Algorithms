@@ -3,6 +3,7 @@ import random
 import timeit
 from collections import defaultdict
 from graph_centralities import GraphCentralities 
+import networkx as nx
 
 def generate_random_graph(n, p):
     random_graph = Graph()
@@ -16,34 +17,44 @@ def generate_random_graph(n, p):
 
 
 gc = GraphCentralities()
-graph1 = generate_random_graph(10, 0.2)
-graph2 = generate_random_graph(10, 0.4)
-graph3 = generate_random_graph(10, 0.6)
-graph4 = generate_random_graph(10, 0.8)
-g = [graph1, graph2, graph3,graph4]
-for gs in g:
-    print(gc.degree_centrality(gs.adjacencyDic))
-    print(gc.closeness_centrality(gs.adjacencyDic))
-    print(gc.eigenvector_centrality(gs.adjacencyDic))
-    print(gc.katz_centrality(gs.adjacencyDic))
-    print(gc.pagerank(gs.adjacencyDic))
-    print(gc.betweenness_centrality(gs.adjacencyDic))
-    
+romania = Graph()
+romania.insertEdge('Oradea','Sibiu', 151 )
+romania.insertEdge('Oradea','Zerind', 71)
+romania.insertEdge('Zerind','Arad', 75)
+romania.insertEdge('Arad','Sibiu', 140)
+romania.insertEdge('Arad','Timisoara', 118)
+romania.insertEdge('Sibiu','Fagaras', 99)
+romania.insertEdge('Sibiu','Rimnicu_Vilcea', 80)
+romania.insertEdge('Timisoara','Lugoj', 111)
+romania.insertEdge('Lugoj','Mehadia', 70)
+romania.insertEdge('Mehadia','Drobeta', 75)
+romania.insertEdge('Drobeta','Craiova', 120)
+romania.insertEdge('Craiova','Pitesti', 138)
+romania.insertEdge('Rimnicu_Vilcea','Pitesti', 97)
+romania.insertEdge('Rimnicu_Vilcea', 'Craiova', 146)
+romania.insertEdge('Fagaras', 'Bucharest', 211)
+romania.insertEdge('Pitesti', 'Bucharest', 101)
+romania.insertEdge('Bucharest', 'Urziceni', 85)
+romania.insertEdge('Bucharest', 'Giurgiu', 90)
+romania.insertEdge('Urziceni', 'Hirsova', 98)
+romania.insertEdge('Urziceni', 'Vaslui', 142)
+romania.insertEdge('Hirsova', 'Eforie', 86)
+romania.insertEdge('Vaslui', 'Iasi', 92)
+romania.insertEdge('Iasi', 'Neamt', 87)
+graphs = [romania, generate_random_graph(10, 0.2), generate_random_graph(10, 0.4)]
+for graph in graphs:
+    print("=====================ANSWER==========================")
+    gc.degree_centrality(graph.adjacencyDic)
+    gc.closeness_centrality(graph.adjacencyDic)
+    gc.eigenvector_centrality(graph.adjacencyDic)
+    gc.katz_centrality(graph.adjacencyDic)
+    gc.pagerank(graph.adjacencyDic)
+    gc.betweenness_centrality(graph.adjacencyDic)
+    print("=====================================================")
 
-# graph5 = generate_random_graph(20, 0.2)
-# graph6 = generate_random_graph(20, 0.4)
-# graph7 = generate_random_graph(20, 0.6)
-# graph8 = generate_random_graph(20, 0.8)
-
-# graph9 = generate_random_graph(30, 0.2)
-# graph10 = generate_random_graph(30, 0.4)
-# graph11 = generate_random_graph(30, 0.6)
-# graph12 = generate_random_graph(30, 0.8)
-
-# graph13 = generate_random_graph(40, 0.2)
-# graph14 = generate_random_graph(40, 0.4)
-# graph15 = generate_random_graph(40, 0.6)
-# graph16 = generate_random_graph(40, 0.8)
 
 
-# Graphs = [graph1, graph2, graph3, graph4, graph5, graph6, graph7, graph8, graph9, graph10, graph11, graph12, graph13, graph14, graph15, graph16]
+
+
+
+
