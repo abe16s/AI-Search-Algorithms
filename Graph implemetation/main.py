@@ -26,13 +26,13 @@ a = romania.iterative_deepening_search("Arad", "Bucharest")
 b = romania.bidirectional_search("Arad", "Bucharest")
 c = romania.greedy("Arad", "Bucharest", romania.haversine_distance)
 
-print(z, romania.find_path_length(z))
-print(w, romania.find_path_length(w))
-print(y, romania.find_path_length(y))
-print(b, romania.find_path_length(b))
-print(c, romania.find_path_length(c))
-print(a, romania.find_path_length(a))
-print(x, romania.find_path_length(x))
+print("DFS",z, romania.find_path_length(z))
+print("BFS",w, romania.find_path_length(w))
+print("UCS",y, romania.find_path_length(y))
+print("bidirectional", b, romania.find_path_length(b))
+print("greedy", c, romania.find_path_length(c))
+print("iterative", a, romania.find_path_length(a))
+print("a*", x, romania.find_path_length(x))
 
 ### Romaina Map
 
@@ -44,6 +44,7 @@ print(x, romania.find_path_length(x))
 ### Random graphs
 
 def generate_random_graph(n, p):
+    # Randomly generating graph with n nodes and p probability of edges
     random_graph = Graph()
     for i in range(1, n + 1):
         if i not in random_graph.adjacencyDic:
@@ -90,8 +91,11 @@ for g in range(len(Graphs)):
     graph_times.append([])
     graph_paths.append([])
     for algo in algos:
+        # For each algorithm we will calculate the time and path taken for the path between the nodes from the 10 randomly taken nodes
         algo_time = 0   
         algo_path = 0 
+
+        # We calculate for all connection among the 10 random nodes 5 times for each path 
         for i in range(len(random_nodes)):
             for j in range(i, len(random_nodes)):
                 for _ in range(5):
