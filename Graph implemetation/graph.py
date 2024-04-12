@@ -1,4 +1,4 @@
-from collections import deque, defaultdict
+from collections import deque
 import heapq
 import random
 import math
@@ -40,11 +40,10 @@ class Graph:
             self.adjacencyDic[nbr].remove(node_del, cost)
         self.adjacencyDic.pop(node_del)
     
-    # Searches 
 
+    # Searches 
     def BFS(self, start, target):
         queue = deque([start])
-        # visited.add(start)
         parent = {start: start}
 
         while queue:
@@ -68,7 +67,7 @@ class Graph:
 
     def DFS(self, start, target):
         stack = [start]
-        parent = {start: start}
+        parent = {start: None}
 
         while stack:
             current_node = stack.pop()
@@ -219,6 +218,15 @@ class Graph:
         distance = radius_earth * c
 
         return distance
+
+    def find_path_length(self, path):
+        total_cost = 0
+        for p in range(len(path)-1):
+            cur = path[p]
+            for nbr, cost in self.adjacencyDic[cur][1]:
+                if nbr == path[p+1]:
+                    total_cost += cost
+        return total_cost
 
             
 
