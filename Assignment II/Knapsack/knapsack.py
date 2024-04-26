@@ -178,53 +178,67 @@ def genetic_algorithm(
 #####################
 
 
+
+def add_item(state, idx, max_count):
+    next_state = state[:]
+    if next_state[idx] < max_count[idx]:
+        next_state[idx] += 1
+    return next_state
+
+def remove_and_add_item(state, idx, max_count, i):
+    next_state = state[:]
+    next_state[idx] -= 1
+    if next_state[i] < max_count[i]:
+        next_state[i] += 1
+    return next_state
+
+def swap_items(state, idx_1, idx_2):
+    next_state = state[:]
+    next_state[idx_1], next_state[idx_2] = next_state[idx_2], next_state[idx_1]
+    return next_state
+
 def next_states(state, problem, max_capacity):
     max_count = problem["counts"]
     prices = problem["prices"]
     weights = problem["weights"]
-
+    n = len(state)
+    
     neighbours = []
 
-    # adding 1 item
-    for i in range(len(state)):
-        next_state = state[:]
+    # Generate states by adding one item
+    for i in range(n):
+        neighbour = add_item(state, i, max_count)
+        if neighbour != state:
+            neighbours.append(neighbour)
 
-        if next_state[i] < max_count[i]:
-            next_state[i] += 1
-            neighbours.append(next_state)
-
-    # adding 1 item after removing other item
-    for i in range(len(state)):
+    # Generate states by adding one item and removing another
+    for i in range(n):
         if state[i] == 0:
             continue
+        for j in range(n):
+            if j != i:
+                neighbour = remove_and_add_item(state, i, max_count, j)
+                if neighbour != state:
+                    neighbours.append(neighbour)
 
-        next_state = state[:]
-        next_state[i] -= 1
+    # Generate states by swapping items
+    for idx_1 in range(n):
+        for idx_2 in range(idx_1 + 1, n):
+            neighbour = swap_items(state, idx_1, idx_2)
+            if neighbour != state:
+                neighbours.append(neighbour)
 
-        for j in range(i + 1, len(state)):
-            if next_state[j] < max_count[i]:
-                next_state[j] += 1
-                neighbours.append(next_state)
-
-    # swap items
-    for idx_1 in range(len(state)):
-        for idx_2 in range(idx_1 + 1, len(state)):
-            next_state = state[:]
-            next_state[idx_1], next_state[idx_2] = next_state[idx_2], next_state[idx_1]
-            neighbours.append(next_state)
-
-    # drop items if current state is invalid until it's valid
+    # Generate states by dropping items until the state is valid
     if calculate_fitness(state, prices, weights, max_capacity) == -1:
-        next_state = state[:]
-        while calculate_fitness(next_state, prices, weights, max_capacity) == -1:
-            idx = random.randrange(len(next_state))
-            if next_state[idx] > 0:
-                next_state[idx] -= 1
-
-        neighbours.append(next_state)
+        while True:
+            idx = random.randrange(len(state))
+            if state[idx] > 0:
+                state[idx] -= 1
+                if calculate_fitness(state, prices, weights, max_capacity) != -1:
+                    neighbours.append(state[:])
+                    break
 
     return neighbours
-
 
 def hill_climbing(initial_state, problem, max_capacity):
     prices = problem["prices"]
