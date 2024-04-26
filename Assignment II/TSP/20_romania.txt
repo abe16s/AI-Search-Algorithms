@@ -15,3 +15,7 @@ Craiova    Pitesti    138
 Craiova    Drobeta    120
 Mehadia    Drobeta    75
 Bucharest    Pitesti    101
+Bucharest    Giurgiu    90
+Bucharest    Urziceni    85
+Urziceni    Hirsova    98
+Hirsova    Eforie    86
