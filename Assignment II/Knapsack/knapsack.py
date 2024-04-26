@@ -177,8 +177,6 @@ def genetic_algorithm(
 """ Hill climbing """
 #####################
 
-
-
 def add_item(state, idx, max_count):
     next_state = state[:]
     if next_state[idx] < max_count[idx]:
@@ -277,7 +275,12 @@ def simulated_annealing(initial_state, problem, max_capacity, max_iteration=2000
     best_state = current
     best_score = current_score
 
-    for i in range(max_iteration):
+    while True:
+        # Decrease temperature
+        temperature /= 1.1
+        if temperature < 0.00001:
+            return best_state
+        
         possible_nexts = next_states(current, problem, max_capacity)
         next_state = random.choice(possible_nexts)
 
@@ -292,12 +295,9 @@ def simulated_annealing(initial_state, problem, max_capacity, max_iteration=2000
 
         if score > best_score:
             best_state = next_state
-            best_score = score
+            best_score = score        
 
-        # Decrease temperature
-        temperature *= 0.99
 
-    return best_state
 
 if __name__ == "__main__":
     parse = argparse.ArgumentParser(
