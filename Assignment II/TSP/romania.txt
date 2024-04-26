@@ -1,0 +1,24 @@
+City_1    City_2    Distance_miles
+Oradea    Zerind    71
+Oradea    Sibiu    151
+Zerind    Arad      75
+Arad    Sibiu    140
+Timisoara    Arad    118
+Sibiu    Rimnicu Vilcea    80
+Sibiu    Fagaras    99
+Timisoara    Lugoj    111
+Fagaras    Bucharest    211
+Rimnicu Vilcea    Pitesti    97
+Rimnicu Vilcea    Craiova    146
+Lugoj    Mehadia    70
+Craiova    Pitesti    138
+Craiova    Drobeta    120
+Mehadia    Drobeta    75
+Bucharest    Pitesti    101
+Bucharest    Giurgiu    90
+Bucharest    Urziceni    85
+Urziceni    Hirsova    98
+Hirsova    Eforie    86
+Urziceni    Vaslui    142
+Vaslui    Iasi    92
+Iasi    Neamt    87
