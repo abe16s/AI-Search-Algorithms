@@ -207,12 +207,11 @@ def next_states(state, problem, max_capacity):
                 neighbours.append(next_state)
 
     # swap items
-    idx_1 = random.randrange(len(state))
-    idx_2 = random.randrange(len(state))
-
-    next_state = state[:]
-    next_state[idx_1], next_state[idx_2] = next_state[idx_2], next_state[idx_1]
-    neighbours.append(next_state)
+    for idx_1 in range(len(state)):
+        for idx_2 in range(idx_1 + 1, len(state)):
+            next_state = state[:]
+            next_state[idx_1], next_state[idx_2] = next_state[idx_2], next_state[idx_1]
+            neighbours.append(next_state)
 
     # drop items if current state is invalid until it's valid
     if calculate_fitness(state, prices, weights, max_capacity) == -1:
