@@ -253,13 +253,13 @@ def hill_climbing(initial_state, problem, max_capacity):
 ###########################
 
 
-def simulated_annealing(initial_state, problem, max_capacity, max_iteration=200):
+def simulated_annealing(initial_state, problem, max_capacity, max_iteration=2000):
     prices = problem["prices"]
     weights = problem["weights"]
 
     current = initial_state
     current_score = calculate_fitness(current, prices, weights, max_capacity)
-
+    temperature = 1000.0
     best_state = current
     best_score = current_score
 
@@ -269,14 +269,10 @@ def simulated_annealing(initial_state, problem, max_capacity, max_iteration=200)
 
         score = calculate_fitness(next_state, prices, weights, max_capacity)
 
-        delta = current_score - score
-        tolerance = np.exp(delta / (max_iteration - i))
+        delta = score - current_score
+        tolerance = np.exp(-delta / temperature) 
 
-        if score > current_score:
-            current = next_state
-            current_score = score
-
-        elif random.uniform(0, 1) <= tolerance:
+        if score > current_score or random.uniform(0, 1) < tolerance:
             current = next_state
             current_score = score
 
@@ -284,8 +280,10 @@ def simulated_annealing(initial_state, problem, max_capacity, max_iteration=200)
             best_state = next_state
             best_score = score
 
-    return best_state
+        # Decrease temperature
+        temperature *= 0.99
 
+    return best_state
 
 if __name__ == "__main__":
     parse = argparse.ArgumentParser(
